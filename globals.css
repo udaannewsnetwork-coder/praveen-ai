@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --font-sora: 'Sora', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+  --font-jetbrains: 'JetBrains Mono', monospace;
+}
+
+* { border-color: theme('colors.border'); }
+
+body {
+  background-color: #06090C;
+  color: #EAF1F6;
+  font-family: var(--font-inter);
+  -webkit-font-smoothing: antialiased;
+}
+
+.bg-dot-grid {
+  background-image: radial-gradient(circle, #1E2933 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, #5FB2FF 0%, #4FE8C4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.katex-display { overflow-x: auto; overflow-y: hidden; padding: 4px 0; }
+
+.scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: #1E2933; border-radius: 4px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+
+.hall-ticket-stub {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    #1E2933 0px,
+    #1E2933 6px,
+    transparent 6px,
+    transparent 14px
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

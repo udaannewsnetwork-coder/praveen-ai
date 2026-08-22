@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ExamCategory {
+  BOARDS
+  DEFENCE
+  GOVT
+  COMPETITIVE
+}
+
+model User {
+  id             String   @id @default(cuid())
+  supabaseId     String   @unique
+  name           String
+  email          String   @unique
+  targetExam     String
+  examCategory   ExamCategory
+  stream         String?
+  className      String?
+  daysUntilExam  Int?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  testSessions   TestSession[]
+  chatHistories  ChatHistory[]
+  weaknessMaps   WeaknessMap[]
+}
+
+model TestSession {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  subject         String
+  topic           String?
+  difficulty      String
+  score            Int
+  totalQuestions   Int
+  accuracy         Float
+  timeSpentSeconds Int
+  breakdownJSON    Json
+  completedAt      DateTime @default(now())
+
+  @@index([userId])
+}
+
+model PYQBank {
+  id            String   @id @default(cuid())
+  examCategory  String
+  subject       String
+  chapter       String
+  year          Int
+  questionText  String
+  optionJSON    Json
+  correctIndex  Int
+  solution      String
+  weightage     String
+
+  @@index([examCategory, subject, year])
+}
+
+model ChatHistory {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  contextTopic  String?
+  messagesJSON  Json
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model WeaknessMap {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  chapter     String
+  subject     String
+  weightage   Int
+  mastery     Int
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+}
