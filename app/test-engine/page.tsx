@@ -1,4 +1,4 @@
-"use client";
+        "use client";
 import { useEffect, useMemo, useState } from "react";
 import { Flag, ChevronLeft, ChevronRight, RotateCcw, Timer as TimerIcon, Trophy, Target, Clock3, CheckCircle2, XCircle } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { QuestionPalette, PaletteLegend } from "@/components/test-engine/question-palette";
 import { TestCreator, type TestConfig } from "@/components/test-engine/test-creator";
-import { MOCK_QUESTIONS } from "@/lib/mock-data";
+import { generateQuestions, MOCK_QUESTIONS } from "@/lib/mock-data";
 import { formatTime, cn } from "@/lib/utils";
 import type { QuestionStatus } from "@/lib/types";
 
@@ -38,7 +38,7 @@ export default function TestEnginePage() {
   }, [secondsLeft]);
 
   function startTest(cfg: TestConfig) {
-    const pool = MOCK_QUESTIONS.slice(0, cfg.questionCount);
+    const pool = generateQuestions(cfg.subject, cfg.topic, cfg.questionCount);
     setQuestions(pool);
     setAnswers(new Array(pool.length).fill(null));
     setMarked(new Array(pool.length).fill(false));
@@ -298,4 +298,4 @@ function StatCard({ icon: Icon, label, value, accent }: { icon: any; label: stri
       </CardContent>
     </Card>
   );
-}
+}                
