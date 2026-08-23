@@ -1,4 +1,4 @@
-// Server-side AI wrapper for Praveen AI's Socratic tutoring persona.
+      // Server-side AI wrapper for Praveen AI's Socratic tutoring persona.
 // Swap `callModel` internals for OpenAI or Gemini — the system prompt
 // and response contract stay the same either way.
 
@@ -44,12 +44,16 @@ export async function callModel(params: AIRequestParams): Promise<string> {
   if (apiKey) {
     try {
       return await callGemini(apiKey, params.messages);
-    } catch (err) {
-      console.error("Gemini call failed, falling back to mock reply:", err);
+    } catch (err: any) {
+      // TEMP DEBUG: surface the real error directly in the chat so it's visible
+      // on mobile without digging through Vercel logs. Remove this block once
+      // the integration is confirmed working, and let it silently fall back instead.
+      const message = err?.message ?? String(err);
+      return `⚠️ **Debug — Gemini call failed:**\n\n\`\`\`\n${message}\n\`\`\`\n\nThis is a temporary debug message so we can see the exact error. Once fixed, this will be replaced by a real AI reply.`;
     }
   }
 
-  // Fallback: mock tutor (used when no API key is set, or if the live call fails).
+  // Fallback: mock tutor (used when no API key is set at all).
   const lastUserMessage = params.messages[params.messages.length - 1]?.content ?? "";
   const priorTurns = params.messages.length;
   return mockSocraticReply(lastUserMessage, priorTurns);
