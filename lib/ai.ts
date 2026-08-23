@@ -1,4 +1,4 @@
-      // Server-side AI wrapper for Praveen AI's Socratic tutoring persona.
+// Server-side AI wrapper for Praveen AI's Socratic tutoring persona.
 // Swap `callModel` internals for OpenAI or Gemini — the system prompt
 // and response contract stay the same either way.
 
@@ -69,7 +69,7 @@ async function callGemini(
   }));
 
   const res = await fetch(
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent",
     {
       method: "POST",
       headers: {
