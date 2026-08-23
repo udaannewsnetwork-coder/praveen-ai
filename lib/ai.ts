@@ -38,12 +38,73 @@ export interface AIRequestParams {
 //   }),
 // });
 export async function callModel(params: AIRequestParams): Promise<string> {
+  const apiKey = process.env.GEMINI_API_KEY;
+
+  // If a real key is configured, call the live Gemini API.
+  if (apiKey) {
+    try {
+      return await callGemini(apiKey, params.messages);
+    } catch (err) {
+      console.error("Gemini call failed, falling back to mock reply:", err);
+    }
+  }
+
+  // Fallback: mock tutor (used when no API key is set, or if the live call fails).
   const lastUserMessage = params.messages[params.messages.length - 1]?.content ?? "";
   const priorTurns = params.messages.length;
   return mockSocraticReply(lastUserMessage, priorTurns);
 }
 
+async function callGemini(
+  apiKey: string,
+  messages: { role: "user" | "assistant"; content: string }[]
+): Promise<string> {
+  const contents = messages.map((m) => ({
+    role: m.role === "assistant" ? "model" : "user",
+    parts: [{ text: m.content }],
+  }));
+
+  const res = await fetch(
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": apiKey,
+      },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: PRAVEEN_SYSTEM_PROMPT }] },
+        contents,
+      }),
+    }
+  );
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Gemini API error ${res.status}: ${errText}`);
+  }
+
+  const data = await res.json();
+  const text = data?.candidates?.[0]?.content?.parts?.map((p: any) => p.text).join("") ?? "";
+  if (!text) throw new Error("Gemini API returned an empty response");
+  return text;
+}
+
 export async function explainPYQ(question: string, chapter: string, solution: string): Promise<string> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (apiKey) {
+    try {
+      return await callGemini(apiKey, [
+        {
+          role: "user",
+          content: `A student is looking at this previous-year exam question from the chapter "${chapter}":\n\n${question}\n\nThe reference solution approach is: ${solution}\n\nExplain (1) the underlying concept, (2) the fastest shortcut method for solving this in an exam, and (3) the most common trap students fall into on this type of question. Keep it concise and use Markdown headers for each of the three parts.`,
+        },
+      ]);
+    } catch (err) {
+      console.error("Gemini call failed for PYQ explain, falling back to mock:", err);
+    }
+  }
+
   return `**Underlying concept:** This question is built entirely around ${chapter}. The moment you spot that framing, you should reach for the standard identity/law for this chapter before reading the options.
 
 **Shortcut method:** ${solution}
