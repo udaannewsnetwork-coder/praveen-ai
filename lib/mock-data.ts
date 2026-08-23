@@ -310,18 +310,26 @@ const FALLBACK_TEMPLATE: QuestionTemplate = {
 
 export function generateQuestions(subject: string, topic: string, count: number): TestQuestion[] {
   const bank = QUESTION_BANK[subject] ?? [];
-  const filteredByTopic = bank.filter((q) => q.topic === topic);
-  const pool = (filteredByTopic.length > 0 ? filteredByTopic : bank.length > 0 ? bank : [FALLBACK_TEMPLATE]);
+
+  // Prioritize questions from the selected topic first, then fill the rest
+  // with other topics from the same subject so a narrow topic (which may only
+  // have 1 sample question) doesn't force the same question to repeat.
+  const topicMatches = bank.filter((q) => q.topic === topic);
+  const otherTopics = bank.filter((q) => q.topic !== topic);
+  const orderedPool = [...topicMatches, ...otherTopics];
+  const pool = orderedPool.length > 0 ? orderedPool : [FALLBACK_TEMPLATE];
 
   const difficulties: TestQuestion["difficulty"][] = ["Easy", "Medium", "Hard"];
   return Array.from({ length: count }).map((_, i) => {
     const template = pool[i % pool.length];
+    const lap = Math.floor(i / pool.length);
+    const isFallback = pool.length === 1 && pool[0] === FALLBACK_TEMPLATE;
     return {
-      id: `q-${subject}-${i + 1}`,
+      id: `q-${subject}-${i + 1}${lap > 0 ? `-r${lap}` : ""}`,
       subject,
-      topic: template.topic,
+      topic: isFallback ? topic : template.topic,
       difficulty: difficulties[i % 3],
-      questionText: template.questionText,
+      questionText: isFallback ? `Practice question ${i + 1} on ${topic} (${subject}).` : template.questionText,
       options: template.options,
       correctIndex: template.correctIndex,
       solution: template.solution,
