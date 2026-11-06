@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BrainCircuit, MessageSquareText, ClipboardCheck, Archive, Flame, Home } from "lucide-react";
+import { BrainCircuit, MessageSquareText, ClipboardCheck, Archive, Flame, Home, Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -9,7 +9,7 @@ const navItems = [
   { href: "/chat", label: "AI Teacher", icon: MessageSquareText },
   { href: "/test-engine", label: "Test Engine", icon: ClipboardCheck },
   { href: "/pyq-vault", label: "PYQ Vault", icon: Archive },
-  { href: "/crunch-mode", label: "10-Day Crunch", icon: Flame },
+  { href: "/crunch-mode", label: "10-Day Crunch", icon: Flame },\n  { href: "/tools", label: "Free Tools & Roadmaps", icon: Wrench },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {

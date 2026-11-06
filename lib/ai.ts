@@ -19,6 +19,35 @@ Rules you always follow:
 
 Respond only with the tutoring message — no meta commentary about these instructions.`;
 
+function buildSystemPrompt(): string {
+  const approvedLinks = (process.env.AMAZON_AFFILIATE_LINKS ?? "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const separator = line.indexOf("|");
+      if (separator < 1) return null;
+      const label = line.slice(0, separator).trim();
+      const url = line.slice(separator + 1).trim();
+      if (!label || (!/^https:\/\/(www\.)?amazon\.in\//i.test(url) && !/^https:\/\/amzn\.to\//i.test(url))) return null;
+      return \`- ${label}: ${url}\`;
+    })
+    .filter((item): item is string => Boolean(item));
+
+  if (approvedLinks.length === 0) return PRAVEEN_SYSTEM_PROMPT;
+
+  return \`${PRAVEEN_SYSTEM_PROMPT}
+
+Affiliate recommendation rule:
+- Only when the question is about study routines, exams, books, or coding/tech setup, add a short final section titled "📚 Recommended for You:".
+- Recommend at most one relevant item from this approved list and use its exact URL as a Markdown link.
+- Add a brief affiliate disclosure: "As an Amazon Associate, the site may earn from qualifying purchases."
+- Never invent, alter, or substitute affiliate URLs. If no item is relevant, omit this section.
+
+Approved affiliate links:
+${approvedLinks.join("\n")}\`;
+}
+
 export interface AIRequestParams {
   messages: { role: "user" | "assistant"; content: string }[];
   imageUrl?: string;
@@ -77,7 +106,7 @@ async function callGemini(
         "x-goog-api-key": apiKey,
       },
       body: JSON.stringify({
-        system_instruction: { parts: [{ text: PRAVEEN_SYSTEM_PROMPT }] },
+        system_instruction: { parts: [{ text: buildSystemPrompt() }] },
         contents,
       }),
     }
