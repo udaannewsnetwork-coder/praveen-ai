@@ -7,7 +7,7 @@ const links = [
   { href: "/chat", label: "AI Teacher" },
   { href: "/test-engine", label: "Test Engine" },
   { href: "/pyq-vault", label: "PYQ Vault" },
-  { href: "/crunch-mode", label: "10-Day Crunch" },
+  { href: "/crunch-mode", label: "10-Day Crunch" },\n  { href: "/tools", label: "Free Tools" },
 ];
 
 export function Navbar({ onStart }: { onStart: () => void }) {
