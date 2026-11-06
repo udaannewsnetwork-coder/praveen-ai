@@ -21,7 +21,7 @@ Respond only with the tutoring message — no meta commentary about these instru
 
 function buildSystemPrompt(): string {
   const approvedLinks = (process.env.AMAZON_AFFILIATE_LINKS ?? "")
-    .split("\\n")
+    .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean)
     .map((line) => {
@@ -29,14 +29,14 @@ function buildSystemPrompt(): string {
       if (separator < 1) return null;
       const label = line.slice(0, separator).trim();
       const url = line.slice(separator + 1).trim();
-      if (!label || !/^https:\\/\\/(www\\.)?amazon\\.in\\//i.test(url) && !/^https:\\/\\/amzn\\.to\\//i.test(url)) return null;
-      return `- ${label}: ${url}`;
+      if (!label || (!/^https:\/\/(www\.)?amazon\.in\//i.test(url) && !/^https:\/\/amzn\.to\//i.test(url))) return null;
+      return \`- \${label}: \${url}\`;
     })
     .filter((item): item is string => Boolean(item));
 
   if (approvedLinks.length === 0) return PRAVEEN_SYSTEM_PROMPT;
 
-  return `${PRAVEEN_SYSTEM_PROMPT}
+  return \`\${PRAVEEN_SYSTEM_PROMPT}
 
 Affiliate recommendation rule:
 - Only when the question is about study routines, exams, books, or coding/tech setup, add a short final section titled "📚 Recommended for You:".
@@ -45,7 +45,7 @@ Affiliate recommendation rule:
 - Never invent, alter, or substitute affiliate URLs. If no item is relevant, omit this section.
 
 Approved affiliate links:
-${approvedLinks.join("\\n")}`;
+\${approvedLinks.join("\n")}\`;
 }
 
 export interface AIRequestParams {
